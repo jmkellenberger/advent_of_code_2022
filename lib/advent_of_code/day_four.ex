@@ -1,58 +1,32 @@
 defmodule AdventOfCode.DayFour do
   @input File.read!("assets/day_four.txt")
          |> String.split(~r/\n/, trim: true)
+         |> Enum.map(fn line ->
+           [_, a, b, c, d] = Regex.run(~r/(\d+)-(\d+),(\d+)-(\d+)/, line)
+           [a, b, c, d] |> Enum.map(&String.to_integer/1)
+         end)
 
   def part_one do
     @input
-    |> Enum.reduce(0, &(check_subset(&1) + &2))
+    |> Enum.reduce(0, fn [a, b, c, d], acc ->
+      set1 = MapSet.new(a..b)
+      set2 = MapSet.new(c..d)
+
+      if MapSet.subset?(set1, set2) or MapSet.subset?(set2, set1) do
+        1 + acc
+      else
+        acc
+      end
+    end)
   end
 
   def part_two do
     @input
-    |> Enum.reduce(0, &(check_intersections(&1) + &2))
-  end
-
-  defp check_intersections(line) do
-    line
-    |> String.split(",", trim: true)
-    |> to_ranges
-    |> to_sets
-    |> intersect?
-  end
-
-  def intersect?({set1, set2}) do
-    case MapSet.intersection(set1, set2) |> MapSet.size() do
-      0 -> 0
-      _ -> 1
-    end
-  end
-
-  defp check_subset(line) do
-    line
-    |> String.split(",", trim: true)
-    |> to_ranges
-    |> to_sets
-    |> subsets?
-  end
-
-  defp to_ranges([first, second | _]) do
-    [min1, max1] =
-      String.split(first, "-", trim: true) |> Enum.map(&String.to_integer/1)
-
-    [min2, max2] =
-      String.split(second, "-", trim: true) |> Enum.map(&String.to_integer/1)
-
-    {min1..max1, min2..max2}
-  end
-
-  @spec to_sets({any, any}) :: {MapSet.t(), MapSet.t()}
-  defp to_sets({range1, range2}), do: {MapSet.new(range1), MapSet.new(range2)}
-
-  defp subsets?({set1, set2}) do
-    if MapSet.subset?(set1, set2) or MapSet.subset?(set2, set1) do
-      1
-    else
-      0
-    end
+    |> Enum.reduce(0, fn [a, b, c, d], acc ->
+      case Range.disjoint?(a..b, c..d) do
+        true -> acc
+        false -> acc + 1
+      end
+    end)
   end
 end
