@@ -8,6 +8,23 @@ defmodule AdventOfCode.DayFour do
   end
 
   def part_two do
+    @input
+    |> Enum.reduce(0, &(check_intersections(&1) + &2))
+  end
+
+  defp check_intersections(line) do
+    line
+    |> String.split(",", trim: true)
+    |> to_ranges
+    |> to_sets
+    |> intersect?
+  end
+
+  def intersect?({set1, set2}) do
+    case MapSet.intersection(set1, set2) |> MapSet.size() do
+      0 -> 0
+      _ -> 1
+    end
   end
 
   defp check_subset(line) do
