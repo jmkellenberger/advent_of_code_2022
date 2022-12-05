@@ -2,31 +2,28 @@ defmodule AdventOfCode.DayFive do
   @input File.read!("assets/day_five.txt")
          |> String.split(~r/\n/)
          |> Enum.chunk_by(&(&1 == ""))
-  def process_input do
+
+  def part_one, do: run(:one) |> format_answer()
+
+  def part_two, do: run(:two) |> format_answer()
+
+  defp run(part) do
+    {crates, commands} = process_input()
+    run_commands(crates, part, commands)
+  end
+
+  defp format_answer(crates) do
+    for n <- 1..9 do
+      Map.get(crates, n) |> hd() |> String.replace(["[", "]"], "")
+    end
+    |> Enum.join()
+  end
+
+  defp process_input do
     [crates, _, commands, _] = @input
     crates = parse_crate_positions(Enum.reverse(crates))
     commands = Enum.map(commands, &String.split(&1, " ", trim: true))
     {crates, commands}
-  end
-
-  def part_one do
-    {crates, commands} = process_input()
-    crates = run_commands(crates, :one, commands)
-
-    for n <- 1..9 do
-      Map.get(crates, n) |> hd() |> String.replace(["[", "]"], "")
-    end
-    |> Enum.join()
-  end
-
-  def part_two do
-    {crates, commands} = process_input()
-    crates = run_commands(crates, :two, commands)
-
-    for n <- 1..9 do
-      Map.get(crates, n) |> hd() |> String.replace(["[", "]"], "")
-    end
-    |> Enum.join()
   end
 
   defp parse_crate_positions([stacks | crates]) do
@@ -85,7 +82,6 @@ defmodule AdventOfCode.DayFive do
 
   defp move(crates, qty, origin, destination, :two) do
     stack = Map.get(crates, origin)
-    IO.inspect(stack)
     {to_shift, rest} = Enum.split(stack, qty)
     crates = Map.put(crates, origin, rest)
 
