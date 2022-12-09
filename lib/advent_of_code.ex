@@ -6,7 +6,8 @@ defmodule AdventOfCode do
     DayFour,
     DayFive,
     DaySix,
-    DaySeven
+    DaySeven,
+    DayEight
   }
 
   def day_one, do: format({DayOne.part_one(), DayOne.part_two()})
@@ -16,5 +17,6 @@ defmodule AdventOfCode do
   def day_five, do: format({DayFive.part_one(), DayFive.part_two()})
   def day_six, do: format({DaySix.part_one(), DaySix.part_two()})
   def day_seven, do: format({DaySeven.part_one(), DaySeven.part_two()})
+  def day_eight, do: format({DayEight.part_one(), DayEight.part_two()})
   defp format({one, two}), do: "Part One: #{one}, Part Two: #{two}"
 end
