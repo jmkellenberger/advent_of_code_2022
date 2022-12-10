@@ -1,5 +1,5 @@
-defmodule AdventOfCode.DayEight do
-  @input File.read!("assets/day_eight.txt")
+defmodule AdventOfCode.Day8 do
+  @input File.read!("assets/8.txt")
          |> String.split("\n", trim: true)
          |> Enum.map(&String.graphemes(&1))
          |> Enum.map(fn line -> Enum.map(line, &String.to_integer(&1)) end)
@@ -9,7 +9,7 @@ defmodule AdventOfCode.DayEight do
          |> Enum.with_index()
          |> Map.new(fn {v, k} -> {k, v} end)
 
-  def part_one(trees \\ @input) do
+  def part1(trees \\ @input) do
     {ht, wd} = grid_sizes(trees)
     perimeter = (wd + ht) * 2
 
@@ -22,7 +22,7 @@ defmodule AdventOfCode.DayEight do
     end
   end
 
-  def part_two(trees \\ @input) do
+  def part2(trees \\ @input) do
     {ht, wd} = grid_sizes(trees)
 
     for x <- 1..(ht - 2),

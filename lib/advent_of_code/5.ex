@@ -1,11 +1,11 @@
-defmodule AdventOfCode.DayFive do
-  @input File.read!("assets/day_five.txt")
+defmodule AdventOfCode.Day5 do
+  @input File.read!("assets/5.txt")
          |> String.split(~r/\n/)
          |> Enum.chunk_by(&(&1 == ""))
 
-  def part_one, do: run(:one) |> format_answer()
+  def part1, do: run(:one) |> format_answer()
 
-  def part_two, do: run(:two) |> format_answer()
+  def part2, do: run(:two) |> format_answer()
 
   defp run(part) do
     {crates, commands} = process_input()

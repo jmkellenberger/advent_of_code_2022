@@ -1,10 +1,10 @@
-defmodule AdventOfCode.DaySix do
-  @input File.read!("assets/day_six.txt")
+defmodule AdventOfCode.Day6 do
+  @input File.read!("assets/6.txt")
 
-  def part_one(input \\ @input),
+  def part1(input \\ @input),
     do: find_marker_index(to_charlist(input), 4)
 
-  def part_two(input \\ @input),
+  def part2(input \\ @input),
     do: find_marker_index(to_charlist(input), 14)
 
   defp find_marker_index(input, size),

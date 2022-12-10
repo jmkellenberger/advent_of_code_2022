@@ -1,8 +1,8 @@
-defmodule AdventOfCode.DaySeven do
-  @input File.read!("assets/day_seven.txt")
+defmodule AdventOfCode.Day7 do
+  @input File.read!("assets/7.txt")
          |> String.split("\n", trim: true)
 
-  def part_one do
+  def part1 do
     get_dirs()
     |> Enum.filter(&(&1 <= 100_000))
     |> Enum.sum()
@@ -11,7 +11,7 @@ defmodule AdventOfCode.DaySeven do
   @total_space 70_000_000
   @needed_space 30_000_000
 
-  def part_two do
+  def part2 do
     dirs = get_dirs()
     unused = @total_space - (dirs |> hd())
 

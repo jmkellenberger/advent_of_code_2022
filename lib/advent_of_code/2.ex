@@ -1,8 +1,8 @@
-defmodule AdventOfCode.DayTwo do
-  @input File.read!("assets/day_two.txt")
+defmodule AdventOfCode.Day2 do
+  @input File.read!("assets/2.txt")
          |> String.split(~r/\n/, trim: true)
 
-  def part_one,
+  def part1,
     do: Enum.reduce(@input, 0, fn match, acc -> score_match(match) + acc end)
 
   def score_match("A X"), do: 4
@@ -15,7 +15,7 @@ defmodule AdventOfCode.DayTwo do
   def score_match("C Y"), do: 2
   def score_match("C Z"), do: 6
 
-  def part_two,
+  def part2,
     do: Enum.reduce(@input, 0, fn match, acc -> fix_match(match) + acc end)
 
   # X means you need to lose,

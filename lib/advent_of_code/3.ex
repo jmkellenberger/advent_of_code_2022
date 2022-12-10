@@ -1,5 +1,5 @@
-defmodule AdventOfCode.DayThree do
-  @input File.read!("assets/day_three.txt")
+defmodule AdventOfCode.Day3 do
+  @input File.read!("assets/3.txt")
          |> String.split(~r/\n/, trim: true)
 
   @item_priority (Enum.map(?a..?z, fn x -> <<x::utf8>> end) ++
@@ -7,13 +7,13 @@ defmodule AdventOfCode.DayThree do
                  |> Enum.zip(1..52)
                  |> Enum.into(%{})
 
-  def part_one,
+  def part1,
     do:
       Enum.reduce(@input, 0, fn rucksack, acc ->
         find_item_common_to_both_compartments(rucksack) + acc
       end)
 
-  def part_two do
+  def part2 do
     @input
     |> Enum.chunk_every(3)
     |> Enum.reduce(0, fn group, acc -> find_badge_value(group) + acc end)

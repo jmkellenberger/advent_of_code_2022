@@ -1,22 +1,24 @@
 defmodule AdventOfCode do
   alias AdventOfCode.{
-    DayOne,
-    DayTwo,
-    DayThree,
-    DayFour,
-    DayFive,
-    DaySix,
-    DaySeven,
-    DayEight
+    Day1,
+    Day2,
+    Day3,
+    Day4,
+    Day5,
+    Day6,
+    Day7,
+    Day8,
+    Day9
   }
 
-  def day_one, do: format({DayOne.part_one(), DayOne.part_two()})
-  def day_two, do: format({DayTwo.part_one(), DayTwo.part_two()})
-  def day_three, do: format({DayThree.part_one(), DayThree.part_two()})
-  def day_four, do: format({DayFour.part_one(), DayFour.part_two()})
-  def day_five, do: format({DayFive.part_one(), DayFive.part_two()})
-  def day_six, do: format({DaySix.part_one(), DaySix.part_two()})
-  def day_seven, do: format({DaySeven.part_one(), DaySeven.part_two()})
-  def day_eight, do: format({DayEight.part_one(), DayEight.part_two()})
+  def day1, do: format({Day1.part1(), Day1.part2()})
+  def day2, do: format({Day2.part1(), Day2.part2()})
+  def day3, do: format({Day3.part1(), Day3.part2()})
+  def day4, do: format({Day4.part1(), Day4.part2()})
+  def day5, do: format({Day5.part1(), Day5.part2()})
+  def day6, do: format({Day6.part1(), Day6.part2()})
+  def day7, do: format({Day7.part1(), Day7.part2()})
+  def day8, do: format({Day8.part1(), Day8.part2()})
+  def day9, do: format({Day9.part1(), Day9.part2()})
   defp format({one, two}), do: "Part One: #{one}, Part Two: #{two}"
 end
