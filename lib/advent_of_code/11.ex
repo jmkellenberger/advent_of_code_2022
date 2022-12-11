@@ -2,19 +2,23 @@ defmodule AdventOfCode.Day11 do
   defmodule Input do
     alias AdventOfCode.Day11.Monkey
 
-    @spec parse(0 | 1) :: Day11.monkeys()
-    def parse(data) do
-      case(data) do
-        0 -> "assets/11.txt"
-        1 -> "assets/11test.txt"
-      end
-      |> File.read!()
+    @spec parse(boolean()) :: Day11.monkeys()
+    def parse(stressed) do
+      File.read!("assets/11.txt")
       |> String.split("\n\n", trim: true)
+      |> build_monkeys(stressed)
+    end
+
+    @spec build_monkeys([String.t()], boolean) :: Day11.monkeys()
+    def build_monkeys(data, stressed) do
+      data
       |> Enum.map(
         &(String.split(&1, "\n", trim: true)
           |> Enum.map(fn line -> String.trim(line) end)
-          |> build_monkey())
+          |> build_monkey()
+          |> Map.put(:stressed, stressed))
       )
+      |> calculate_lcm()
       |> Enum.reduce(%{}, &Map.put(&2, &1.id, &1))
     end
 
@@ -23,8 +27,6 @@ defmodule AdventOfCode.Day11 do
       id = String.replace(id, ":", "") |> String.to_integer()
       build_monkey(rest, %{id: id})
     end
-
-    defp build_monkey([], attrs), do: struct(Monkey, attrs)
 
     defp build_monkey(["Starting items: " <> items | rest], attrs) do
       items =
@@ -53,32 +55,48 @@ defmodule AdventOfCode.Day11 do
            [
              "Test: divisible by " <> div,
              "If true: throw to monkey " <> m1,
-             "If false: throw to monkey " <> m2 | rest
+             "If false: throw to monkey " <> m2 | _
            ],
            attrs
          ) do
       [div, m1, m2 | _] = [div, m1, m2] |> Enum.map(&String.to_integer/1)
 
-      build_monkey(
-        rest,
-        Map.put(attrs, :test, fn old ->
+      attrs =
+        attrs
+        |> Map.put(:lcm, div)
+        |> Map.put(:test, fn old ->
           if rem(old, div) == 0 do
             m1
           else
             m2
           end
         end)
-      )
+
+      struct(Monkey, attrs)
     end
+
+    defp calculate_lcm(monkeys) do
+      divisors = for monkey <- monkeys, do: monkey.lcm
+      lcm = Enum.reduce(divisors, &lcm/2)
+      Enum.map(monkeys, &Map.put(&1, :lcm, lcm))
+    end
+
+    defp gcd(a, 0), do: a
+    defp gcd(0, b), do: b
+    defp gcd(a, b), do: gcd(b, rem(a, b))
+    defp lcm(0, 0), do: 0
+    defp lcm(a, b), do: div(a * b, gcd(a, b))
   end
 
   defmodule Monkey do
-    @enforce_keys [:id, :op, :test, :items]
+    @enforce_keys [:id, :op, :test, :lcm, :items]
     defstruct [
       :id,
       :op,
       :test,
       :items,
+      :stressed,
+      :lcm,
       turns: 0
     ]
 
@@ -86,31 +104,31 @@ defmodule AdventOfCode.Day11 do
             id: integer(),
             op: fun(),
             test: fun(),
+            lcm: integer(),
             items: [integer()]
           }
 
     @type result :: {integer(), integer()}
 
-    @spec new(integer(), fun(), fun(), [integer()]) ::
-            AdventOfCode.Day11.Monkey.t()
-    def new(id, op, test, items) do
-      %__MODULE__{
-        id: id,
-        op: op,
-        test: test,
-        items: items
-      }
-    end
-
     @spec inspect_items(t) :: {t, [result]}
     def inspect_items(
-          %__MODULE__{items: items, op: op, test: test, turns: t} = monkey
+          %__MODULE__{items: items, op: op, test: test, turns: t, lcm: lcm} =
+            monkey
         ) do
       results =
-        Enum.map(items, fn item ->
-          new_item = div(op.(item), 3)
-          {test.(new_item), new_item}
-        end)
+        case monkey.stressed do
+          false ->
+            Enum.map(items, fn item ->
+              new_item = div(op.(item), 3)
+              {test.(new_item), new_item}
+            end)
+
+          true ->
+            Enum.map(items, fn item ->
+              new_item = rem(op.(item), lcm)
+              {test.(new_item), new_item}
+            end)
+        end
 
       {%{monkey | items: [], turns: t + length(items)}, results}
     end
@@ -171,18 +189,22 @@ defmodule AdventOfCode.Day11 do
   @type results :: [Monkey.result()]
   @type monkeys :: %{integer() => Monkey.t()}
 
+  @spec part1 :: number
   def part1 do
-    setup()
+    setup(false)
     |> MonkeyBusiness.start(20)
     |> MonkeyBusiness.get_level()
   end
 
+  @spec part2 :: number
   def part2 do
-    "TBD"
+    setup(true)
+    |> MonkeyBusiness.start(10_000)
+    |> MonkeyBusiness.get_level()
   end
 
-  @spec setup(0 | 1) :: MonkeyBusiness.t()
-  def setup(file \\ 0) do
-    Input.parse(file)
+  @spec setup(boolean) :: MonkeyBusiness.t()
+  def setup(stressed) do
+    Input.parse(stressed)
   end
 end
