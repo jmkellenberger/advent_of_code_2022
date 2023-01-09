@@ -1,11 +1,15 @@
 defmodule Day15 do
   @type coordinate :: {integer(), integer()}
   @type line :: {coordinate(), coordinate()}
-  @type region :: %{origin: coordinate(), beacon: coordinate(), distance: integer()}
+  @type region :: %{
+          origin: coordinate(),
+          beacon: coordinate(),
+          distance: integer()
+        }
   @type input_pair :: %{sensor: coordinate(), beacon: coordinate()}
   @type input :: [input_pair]
 
-  @example_input = """
+  @example """
   Sensor at x=2, y=18: closest beacon is at x=-2, y=15
   Sensor at x=9, y=16: closest beacon is at x=10, y=16
   Sensor at x=13, y=2: closest beacon is at x=15, y=3
@@ -23,35 +27,43 @@ defmodule Day15 do
   """
 
   def solve_1(input, depth) do
-   {points, beacons} = input
-    |> String.split("\n", trim: true)
-    |> Enum.flat_map(fn line ->
-      String.split(line, ":", trim: true)
-      |> Enum.map(&String.split(&1, "at ", trim: true))
-      |> Enum.map(fn [_, coord] -> coord end)
-      |> Enum.map(&String.split(&1, ", ", trim: true))
-    end)
-    |> Enum.map(fn ["x=" <> x, "y=" <> y] -> {String.to_integer(x), String.to_integer(y)} end)
-    |> Enum.chunk_every(2)
-    |> Enum.map(fn [sensor, beacon] -> %{sensor: sensor, beacon: beacon} end)
-    |> Enum.map(&diamond/1)
-    |> Enum.reduce({MapSet.new(), MapSet.new()}, fn diamond, {coords, beacons} ->
-      case diamond_slice(diamond, depth) do
-        nil ->
-          {coords, MapSet.put(beacons, diamond[:beacon])}
+    {points, beacons} =
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.map(&get_input_pair/1)
+      |> Enum.map(&diamond/1)
+      |> Enum.reduce({MapSet.new(), MapSet.new()}, fn diamond,
+                                                      {coords, beacons} ->
+        case diamond_slice(diamond, depth) do
+          nil ->
+            {coords, MapSet.put(beacons, diamond[:beacon])}
 
-        slice ->
-          points =
-            slice
-            |> line_to_points()
-            |> MapSet.new()
+          slice ->
+            points =
+              slice
+              |> line_to_points()
+              |> MapSet.new()
 
-          {MapSet.union(points, coords), MapSet.put(beacons, diamond[:beacon])}
-      end
-    end)
+            {MapSet.union(points, coords),
+             MapSet.put(beacons, diamond[:beacon])}
+        end
+      end)
 
     MapSet.difference(points, beacons)
     |> Enum.count()
+  end
+
+  defp get_input_pair(line) do
+    [_ | coords] =
+      Regex.run(
+        ~r/x=(?<x1>-?\d+), y=(?<y1>-?\d+).*x=(?<x2>-?\d+), y=(?<y2>-?\d+)/,
+        line
+      )
+
+    [sensor_x, sensor_y, beacon_x, beacon_y] =
+      Enum.map(coords, &String.to_integer/1)
+
+    %{sensor: {sensor_x, sensor_y}, beacon: {beacon_x, beacon_y}}
   end
 
   defp line_to_points({{x1, y}, {x2, y}}) do
@@ -66,7 +78,11 @@ defmodule Day15 do
   end
 
   defp diamond(%{sensor: sensor, beacon: beacon}) do
-    %{origin: sensor, distance: manhattan_distance(sensor, beacon), beacon: beacon}
+    %{
+      origin: sensor,
+      distance: manhattan_distance(sensor, beacon),
+      beacon: beacon
+    }
   end
 
   defp distance({x1, y1} = p1, {x2, y2} = p2) do
@@ -83,8 +99,7 @@ defmodule Day15 do
     {{x - modified_distance, depth}, {x + modified_distance, depth}}
   end
 
-  def overlaps?(min1..max1, min2..max2) do
-    max(min1,max1) <= min(min2,max2)
-    # min2 <= max1 && min2 >= min1 || max2 >= min1 && max2 <= max1
+  def overlaps?(range1, range2) do
+    Range.disjoint?(range1, range2)
   end
 end
